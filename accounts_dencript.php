@@ -1,18 +1,23 @@
 <?php
-$path ='accounts.file';
 $path1 ='ip.file';
+$servername = "localhost";
+$username = "root";
+$database="mytest";
+$conn=mysqli_connect($servername,$username,"",$database);
+if(!$conn)
+{
+     echo "unable to connect to database please try again later<br>";
+     die(mysqli_connect_error());
+}
     $name   = urldecode($_POST['name']);
-    $name=trim($name);
-    $password   = urldecode($_POST['password']);
+    $email   = urldecode($_POST['email']);
+    $password   = md5($email.urldecode($_POST['password']));
     $ip   = urldecode($_POST['ip']);
     $city   = urldecode($_POST['city']);
     $country   = urldecode($_POST['country']);
     $country_code   = urldecode($_POST['country_name']);
     $cipher = "aes-128-gcm";
-    $fh = fopen($path,"r");
     $fi = fopen($path1,"a+");
-    $key="test";
-    $iv = 12;
     $found=false;
     $dH=number_format(gmdate("H"));
     $delayH=5;
@@ -27,26 +32,16 @@ $path1 ='ip.file';
         $H+=1;
     }
     $d="".$H.":".$M.":".$dS;
-    while(!feof($fh))
-    {
-       if (in_array($cipher, openssl_get_cipher_methods()))
+    $get="SELECT email , pass  FROM test6";
+    $results=mysqli_query($conn,$get);
+    if ($results->num_rows > 0) {
+        while($row = $results->fetch_assoc()) {
+            if (in_array($cipher, openssl_get_cipher_methods()))
             {
-            $ivlen = openssl_cipher_iv_length($cipher);
-            $ciphertext = fgets($fh);
-            if(strpos($ciphertext,"Name:")!== false)
-            {
-                $ciphertext=trim(str_replace("Name:","",$ciphertext));
-                if(hash_equals($ciphertext,$name))
+                if(hash_equals($row['email'],$email))
                 {
                     $found=true;
-                    $cipherpass = fgets($fh);
-                    $cipherpass=str_replace("Password:","",$cipherpass);
-                    $tagpass=fgets($fh);
-                    $tagpass=str_replace("Password Tag:","",$tagpass);
-                    $tagpass=trim($tagpass);
-                    $original_plainpass = openssl_decrypt($cipherpass, $cipher, $key, $options=0, $iv, $tagpass);
-                    $original_plainpass=trim($original_plainpass);
-                    if(hash_equals($original_plainpass,$password))
+                    if(hash_equals($password,$row['pass']))
                     {
                         fwrite($fi,"---------------------------\n".
                                     $name.
@@ -76,7 +71,7 @@ $path1 ='ip.file';
                 }
             }
         }
-    }
+      }
     if($found==false)
     {
         if(trim($name)=="")
@@ -94,6 +89,7 @@ $path1 ='ip.file';
         {                        
             fwrite($fi,"---------------------------\n".
             $name.
+            "\nEmail:".$email.
             "\nTime:".$d.
             "\nDate:".gmdate("d/m/Y").
             "\nIP:".$ip.
@@ -104,6 +100,4 @@ $path1 ='ip.file';
         }
         print "no account found";
     }
-    fclose($fh);
     fclose($fi);
-?>

@@ -1,19 +1,23 @@
 <?php
-$path ='accounts.file';
 $path1 ='ip.file';
+$servername = "localhost";
+$username = "root";
+$database="mytest";
+$conn=mysqli_connect($servername,$username,"",$database);
+if(!$conn)
+{
+     echo "unable to connect to database please try again later<br>";
+     die(mysqli_connect_error());
+}
      $fi = fopen($path1,"a+");
        $name   = urldecode($_POST['name']);
-       $password   = urldecode($_POST['password']);
+       $email   = urldecode($_POST['email']);
+       $password   = md5($email.urldecode($_POST['password']));
        $ip   = urldecode($_POST['ip']);
        $city   = urldecode($_POST['city']);
        $country   = urldecode($_POST['country']);
        $country_code   = urldecode($_POST['country_name']);
        $cipher = "aes-128-gcm";
-       $fh = fopen($path,"a+");
-       $fr=fopen($path,"r");
-       $key="test";
-       $iv = 12;
-       $exist=false;
        $dH=number_format(gmdate("H"));
        $delayH=5;
        $dM=number_format(gmdate("i"));
@@ -27,30 +31,12 @@ $path1 ='ip.file';
            $H+=1;
        }
        $d="".$H.":".$M.":".$dS;
-       while(!feof($fr))
-       {
-          $checktext = fgets($fr);
-          if(strpos($checktext,"Name:")!== false)
-          {
-               $checktext=trim(str_replace("Name:","",$checktext));
-               if(hash_equals($checktext,$name))
-               {
-                    $exist=true;
-                    break;
-               }
-          }
-     }
-     if($exist==false)
+     $create="INSERT INTO `test6` (`Name`, `email`, `pass`, `data`) VALUES ("."'".$name."'".", "."'".$email."'".", "."'".$password."'".", '{\"Ben\":37,\"Joe\":43}')";
+     $result=mysqli_query($conn,$create);
+     if($result)
      {
           if (in_array($cipher, openssl_get_cipher_methods()))
           {
-          $ivlen = openssl_cipher_iv_length($cipher);
-            $cipherpassword = openssl_encrypt($password, $cipher, $key, $options=0, $iv, $tagpass);
-            $totalaccount="-----------------------".
-                         "\nName:".$name.
-                         "\nPassword:".$cipherpassword.
-                         "\nPassword Tag:".$tagpass."\n";
-            fwrite($fh,$totalaccount);
             fwrite($fi,"---------------------------\n".
             $name.
             "\nTime:".$d.
@@ -75,5 +61,4 @@ $path1 ='ip.file';
           "\nCountry Name:".$country_code.
           "\nAccount Not Created\n");
      }
-     fclose($fh);
      fclose($fi);
